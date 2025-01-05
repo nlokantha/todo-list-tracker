@@ -96,7 +96,36 @@ const loginUser = async (req, res) => {
   }
 };
 
+const getTodos = async (req,res)=>{
+  try{
+    const userId = req.params.userId
+
+    const user = await User.findById(userId).populate("todos")
+
+    if(!user){
+      return res.status(404).json({
+        success:false,
+        message:"user not found!"
+      })
+    }
+
+    res.status(200).json({
+      success:true,
+      todos: user?.todos
+    })
+
+
+  }catch(e){
+    console.log(e)
+    res.status(500).json({
+      success: false,
+      message: "Some error occur!",
+    });
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  getTodos
 };
