@@ -19,6 +19,7 @@ import {
 import axios from "axios"
 import Entypo from "@expo/vector-icons/Entypo"
 import moment from "moment"
+import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons"
 
 const HomeScreen = () => {
   // const todos = [];
@@ -55,7 +56,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     fetchTodos()
-  }, [])
+  }, [marked, modalVisible])
 
   const handleAddTodo = async () => {
     try {
@@ -74,7 +75,7 @@ const HomeScreen = () => {
         .catch((error) => {
           console.log(error)
         })
-
+      await fetchTodos()
       setModalVisible(false)
       setTodo("")
     } catch (e) {
@@ -135,17 +136,53 @@ const HomeScreen = () => {
         </View>
         <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
           <View style={{ padding: 10, flex: 1 }}>
+            <View>
+              {pendingTodos?.length > 0 && <Text>Tasks To Do - ({today})</Text>}
+            </View>
+
             {todos?.length > 0 ? (
               <View>
                 {pendingTodos &&
                   pendingTodos.map((item, index) => (
-                    <View key={index} style={styles.todosContainer}>
-                      <Entypo name="circle" size={24} color="black" />
-                      <Text style={styles.todosText}>
-                        {item.title} {today}
-                      </Text>
-                    </View>
+                    <TouchableOpacity
+                      onPress={() => markTodoAsCompleted(item?._id)}
+                      key={index}
+                      style={styles.todosContainer}>
+                      <Entypo name="circle" size={18} color="black" />
+                      <Text style={styles.todosText}>{item?.title}</Text>
+                      <Feather name="flag" size={20} color={"black"} />
+                    </TouchableOpacity>
                   ))}
+
+                <View>
+                  <View style={{ marginTop: 10, flexDirection: "row", gap: 5 }}>
+                    <Text>Completed To Dos</Text>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={20}
+                      color="black"
+                    />
+                  </View>
+                  {completedTodos &&
+                    completedTodos.map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.todosContainer}>
+                        <FontAwesome name="circle" size={18} color="grey" />
+                        <Text
+                          style={[
+                            styles.todosText,
+                            {
+                              textDecorationLine: "line-through",
+                              color: "grey",
+                            },
+                          ]}>
+                          {item?.title}
+                        </Text>
+                        <Feather name="flag" size={20} color={"grey"} />
+                      </TouchableOpacity>
+                    ))}
+                </View>
               </View>
             ) : (
               <View
@@ -340,12 +377,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 10,
   },
   todosText: {
     fontWeight: "600",
-    fontSize: 18,
+    fontSize: 16,
     flex: 1,
-    textAlign: "center",
   },
 })
