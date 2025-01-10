@@ -20,6 +20,7 @@ import axios from "axios"
 import Entypo from "@expo/vector-icons/Entypo"
 import moment from "moment"
 import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons"
+import { router } from "expo-router"
 
 const HomeScreen = () => {
   // const todos = [];
@@ -144,14 +145,26 @@ const HomeScreen = () => {
               <View>
                 {pendingTodos &&
                   pendingTodos.map((item, index) => (
-                    <TouchableOpacity
-                      onPress={() => markTodoAsCompleted(item?._id)}
-                      key={index}
-                      style={styles.todosContainer}>
-                      <Entypo name="circle" size={18} color="black" />
+                    <View key={index} style={styles.todosContainer}>
+                      <Entypo
+                        onPress={() => markTodoAsCompleted(item?._id)}
+                        name="circle"
+                        size={18}
+                        color="black"
+                      />
                       <Text style={styles.todosText}>{item?.title}</Text>
-                      <Feather name="flag" size={20} color={"black"} />
-                    </TouchableOpacity>
+                      <Feather
+                        onPress={() =>
+                          router.push({
+                            pathname: "/(tabs)/home/info",
+                            params: { todos: JSON.stringify(item) },
+                          })
+                        }
+                        name="flag"
+                        size={20}
+                        color={"black"}
+                      />
+                    </View>
                   ))}
 
                 <View>

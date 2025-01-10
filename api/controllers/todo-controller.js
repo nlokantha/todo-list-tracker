@@ -73,10 +73,76 @@ const updateTodo = async (req, res) => {
   }
 }
 
+// const completedTodos = async (req, res) => {
+//   try {
+//     const date = req.params.date
+//     const comTodos = await Todo.find({
+//       status: "completed",
+//       createdAt: {
+//         $gte: new Date(`${date}T00:00:00:000Z`), //start of the selected Date
+//         $lt: new Date(`${date}T23:59:59:999Z`), // end of the selected date
+//       },
+//     })
+//     res.status(200).json({
+//       success: true,
+//       todos: comTodos,
+//     })
+//   } catch (e) {
+//     console.log(e)
+//     res.status(500).json({
+//       success: false,
+//       message: "some error occured!",
+//     })
+//   }
+// }
 const completedTodos = async (req, res) => {
   try {
     const date = req.params.date
-    const 
+    const startOfDay = new Date(
+      Date.UTC(
+        parseInt(date.split("-")[0]), // Year
+        parseInt(date.split("-")[1]) - 1, // Month (0-based)
+        parseInt(date.split("-")[2]) // Day
+      )
+    )
+    const endOfDay = new Date(startOfDay)
+    endOfDay.setUTCDate(startOfDay.getUTCDate() + 1)
+
+    const comTodos = await Todo.find({
+      status: "completed",
+      createdAt: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+    }).exec()
+
+    res.status(200).json({
+      success: true,
+      todos: comTodos,
+    })
+  } catch (e) {
+    console.log(e)
+    res.status(500).json({
+      success: false,
+      message: "Some error occurred!",
+    })
+  }
+}
+
+const getCount = async (req, res) => {
+  try {
+    const totalCompletedTodos = await Todo.countDocuments({
+      status: "completed",
+    })
+    const totalPendingTodos = await Todo.countDocuments({
+      status: "pending",
+    })
+
+    res.status(200).json({
+      success: true,
+      totalCompletedTodos,
+      totalPendingTodos,
+    })
   } catch (e) {
     console.log(e)
     res.status(500).json({
@@ -90,4 +156,5 @@ module.exports = {
   addTodo,
   updateTodo,
   completedTodos,
+  getCount,
 }
